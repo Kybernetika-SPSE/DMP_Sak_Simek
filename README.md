@@ -23,6 +23,14 @@ GUI je navrženo s důrazem na jednoduchost a eleganci:
 | Akcentní barva      | Modrá         | `#3a7bd5`  |
 | Barva textu         | Tmavě šedá    | `#333333`  |
 
+## Požadované moduly
+- tensorflow==2.12.0
+- tensorflow-hub==0.13.0
+- opencv-python==4.6.0.66
+- Pillow==9.4.0
+- numpy==1.24.3
+
+
 ## Návod na použití
 1. **Načtení obrázku**: Klikněte na „Načíst obrázek“ a nahrajte obrázek pro detekci.
 2. **Spuštění kamery**: Klikněte na „Spustit kameru“ pro aktivaci webkamery a zahájení živého záznamu.
