@@ -1,7 +1,7 @@
-# AI Object Detection GUI
+# GUI pro Rozpoznávání objektů
 
 ## Přehled
-Tento projekt představuje GUI aplikaci pro rozpoznávání objektů pomocí TensorFlow Lite. Aplikace umožňuje uživatelům nahrávat obrázky nebo sledovat živé video z kamery s výpisem detekovaných objektů v reálném čase. S čistým a elegantním designem je tato aplikace uživatelsky přívětivá a ideální pro prezentaci detekčních systémů na bázi AI.
+GUI aplikace pro rozpoznávání objektů pomocí TensorFlow Lite. Aplikace umožňuje uživatelům nahrávat obrázky nebo sledovat živé video z kamery s výpisem detekovaných objektů v reálném čase. 
 
 ### Klíčové funkce
 - **Načtení obrázku a přístup ke kameře**: Možnost nahrát obrázek ze souboru nebo spustit živé video z kamery.
