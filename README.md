@@ -23,7 +23,7 @@ GUI je navrženo s důrazem na jednoduchost a eleganci:
 | Akcentní barva      | Modrá         | `#3a7bd5`  |
 | Barva textu         | Tmavě šedá    | `#333333`  |
 
-## Jak používat
+## Návod na použití
 1. **Načtení obrázku**: Klikněte na „Načíst obrázek“ a nahrajte obrázek pro detekci.
 2. **Spuštění kamery**: Klikněte na „Spustit kameru“ pro aktivaci webkamery a zahájení živého záznamu.
 3. **Rozpoznání objektů**: Stiskněte „Rozpoznat objekty“ pro spuštění rozpoznávání a zobrazení výsledků.
@@ -34,3 +34,9 @@ GUI je navrženo s důrazem na jednoduchost a eleganci:
    ```bash
    git clone https://github.com/your-repo/ai-object-detection.git
    cd ai-object-detection
+2. Nainstalujte potřebné balíčky:
+   ```bash
+   pip install -r requirements.txt
+3. Spusťte aplikaci:
+   ```bash
+   python app.py
