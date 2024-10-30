@@ -1,25 +1,36 @@
-# GUI pro Rozpoznávání Objektů
+# AI Object Detection GUI
 
-Tento projekt je jednoduché grafické uživatelské rozhraní (GUI) pro rozpoznávání objektů pomocí strojového učení. Aplikace umožňuje nahrát obrázek a identifikovat objekty v něm pomocí předtrénovaného modelu.
+## Přehled
+Tento projekt představuje GUI aplikaci pro rozpoznávání objektů pomocí TensorFlow Lite. Aplikace umožňuje uživatelům nahrávat obrázky nebo sledovat živé video z kamery s výpisem detekovaných objektů v reálném čase. S čistým a elegantním designem je tato aplikace uživatelsky přívětivá a ideální pro prezentaci detekčních systémů na bázi AI.
 
-## Funkce
+### Klíčové funkce
+- **Načtení obrázku a přístup ke kameře**: Možnost nahrát obrázek ze souboru nebo spustit živé video z kamery.
+- **Rozpoznávání objektů pomocí TensorFlow Lite**: Efektivní a lehká implementace modelu pro reálnou detekci objektů.
+- **Nastavitelná citlivost**: Citlivost detekce lze nastavit pomocí posuvníku.
+- **Elegantní a moderní uživatelské rozhraní**: Minimalistický a přehledný design pomocí Tkinteru.
 
-- Nahrání obrázku z lokálního úložiště.
-- Detekce objektů na základě modelu strojového učení (např. YOLO, SSD, nebo jiný).
-- Zobrazení rozpoznaných objektů přímo na obrázku.
-- Export výsledného obrázku s detekovanými objekty.
+## Design uživatelského rozhraní a barevné schéma
+GUI je navrženo s důrazem na jednoduchost a eleganci:
+- **Barevné schéma**: Jemné modré a šedé tóny s akcentovými barvami pro profesionální vzhled.
+- **Zaoblené hrany**: Tlačítka a rámečky se zaoblenými hranami pro moderní, hladký vzhled.
+- **Přehledné rozvržení**: Tlačítka jsou jasně označená a umístěná pro snadnou orientaci.
 
-## Požadavky
+### Barevná paleta
+| Prvek               | Barva         | Hex kód    |
+|---------------------|---------------|------------|
+| Pozadí aplikace     | Světle šedá   | `#fafafa`  |
+| Pozadí rámečků      | Modrošedá     | `#e3e8f0`  |
+| Akcentní barva      | Modrá         | `#3a7bd5`  |
+| Barva textu         | Tmavě šedá    | `#333333`  |
 
-- Python 3.8+
-- Knihovny:
-  - `tensorflow` nebo `pytorch`
-  - `opencv-python`
-  - `numpy`
-  - `tkinter` (pro GUI)
-  - `Pillow` (pro práci s obrázky)
+## Jak používat
+1. **Načtení obrázku**: Klikněte na „Načíst obrázek“ a nahrajte obrázek pro detekci.
+2. **Spuštění kamery**: Klikněte na „Spustit kameru“ pro aktivaci webkamery a zahájení živého záznamu.
+3. **Rozpoznání objektů**: Stiskněte „Rozpoznat objekty“ pro spuštění rozpoznávání a zobrazení výsledků.
+4. **Nastavení citlivosti**: Pomocí posuvníku citlivosti lze upravit míru detekce.
 
-## Instalace
-````bash
-git clone https://github.com/Dawe583/MaturitniPrace
-
+## Postup instalace
+1. Naklonujte si repozitář a přejděte do složky projektu:
+   ```bash
+   git clone https://github.com/your-repo/ai-object-detection.git
+   cd ai-object-detection
