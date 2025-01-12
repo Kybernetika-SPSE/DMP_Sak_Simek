@@ -47,4 +47,4 @@ GUI je navrženo s důrazem na jednoduchost a eleganci:
    pip install -r requirements.txt
 3. Spusťte aplikaci:
    ```bash
-   python app.py
+   python gui.py
