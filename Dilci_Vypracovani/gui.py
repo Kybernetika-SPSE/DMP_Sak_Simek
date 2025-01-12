@@ -13,125 +13,137 @@ class ObjectDetectionApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Rozpoznávání Objektů")
-        self.root.geometry("1200x700")
-        self.root.minsize(1200, 700)
+        self.root.geometry("700x400")  # Velikost okna
+        self.root.minsize(700, 400)  # Minimální velikost okna
 
         # Barevné schéma
-        bg_color = "#fafafa"
-        frame_bg_color = "#e3e8f0"
+        bg_color = "#f5f5f5"
+        frame_bg_color = "#ffffff"
         accent_color = "#3a7bd5"
         text_color = "#333333"
-        
+        font_primary = ("Helvetica", 8)  # Zmenšení písma pro ovládací prvky
+        font_secondary = ("Helvetica", 6)  # Menší písmo pro textové komponenty
+        font_bold = ("Helvetica", 8, "bold")
+
         self.root.configure(bg=bg_color)
 
         # Nadpis aplikace
         self.title = tk.Label(
-            root, text="Rozpoznávání Objektů", font=("Arial", 24, "bold"), bg=bg_color, fg=accent_color
+            root, text="Rozpoznávání Objektů", font=("Helvetica", 12, "bold"), bg=bg_color, fg=accent_color
         )
-        self.title.pack(pady=10)
+        self.title.grid(row=0, column=0, columnspan=2, pady=10)
 
         # Rámec pro zobrazení obrázku a konzoli
         self.image_console_frame = tk.Frame(root, bg=frame_bg_color)
-        self.image_console_frame.pack(side="left", fill="both", expand=True, padx=20, pady=10)
+        self.image_console_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
         # Rámec pro zobrazení obrázku
-        self.image_frame = tk.Frame(self.image_console_frame, bg="black")
-        self.image_frame.pack(fill="both", expand=True)
+        self.image_frame = tk.Frame(self.image_console_frame, bg="#eeeeee", bd=1, relief="solid")
+        self.image_frame.pack(fill="both", expand=True, padx=5, pady=5)
 
         self.canvas = tk.Canvas(self.image_frame, bg="black")
         self.canvas.pack(fill="both", expand=True)
 
-        # Konzolový výstup
+        # Konzolový výstup a vstup
         self.console_frame = tk.Frame(self.image_console_frame, bg=frame_bg_color)
         self.console_frame.pack(fill="both", expand=True)
 
-        self.console_output = tk.Text(self.console_frame, height=10, bg="black", fg="white", font=("Courier", 10))
-        self.console_output.pack(fill="both", expand=True)
+        self.console_output = tk.Text(self.console_frame, height=4, bg="#222222", fg="#ffffff", font=("Courier", 6), bd=1, relief="solid")
+        self.console_output.pack(fill="both", expand=True, padx=5, pady=5)
+
+        self.console_input = tk.Entry(self.console_frame, bg="#333333", fg="#ffffff", font=("Courier", 6), bd=1, relief="solid")
+        self.console_input.pack(fill="x", padx=5, pady=5)
+        self.console_input.bind("<Return>", self.execute_command)
+
         self.redirect_console_output()
 
-        # Ovládací panel
-        self.controls_frame = tk.Frame(root, bg=bg_color)
-        self.controls_frame.pack(side="right", fill="y", padx=20, pady=10)
+        # Ovládací panel a graf
+        self.controls_frame = tk.Frame(root, bg=bg_color, width=120)  # Zúžený ovládací panel
+        self.controls_frame.grid(row=1, column=1, padx=10, pady=10, sticky="ns")
 
         # Tlačítka pro načítání obrázku a videa
         self.load_image_btn = tk.Button(
             self.controls_frame, text="Načíst obrázek", command=self.load_image,
-            bg=accent_color, fg="white", font=("Arial", 11, "bold"), relief="flat"
+            bg=accent_color, fg="white", font=font_bold, relief="flat", height=1
         )
         self.load_image_btn.pack(fill="x", pady=5)
 
         self.load_video_btn = tk.Button(
             self.controls_frame, text="Načíst video", command=self.load_video,
-            bg=accent_color, fg="white", font=("Arial", 11, "bold"), relief="flat"
+            bg=accent_color, fg="white", font=font_bold, relief="flat", height=1
         )
         self.load_video_btn.pack(fill="x", pady=5)
 
         self.start_camera_btn = tk.Button(
             self.controls_frame, text="Spustit kameru", command=self.start_camera,
-            bg=accent_color, fg="white", font=("Arial", 11, "bold"), relief="flat"
+            bg=accent_color, fg="white", font=font_bold, relief="flat", height=1
         )
         self.start_camera_btn.pack(fill="x", pady=5)
 
         # Tlačítko pro rozpoznání objektů
         self.detect_btn = tk.Button(
             self.controls_frame, text="Rozpoznat objekty", command=self.detect_objects,
-            bg=accent_color, fg="white", font=("Arial", 11, "bold"), relief="flat"
+            bg=accent_color, fg="white", font=font_bold, relief="flat", height=1
         )
         self.detect_btn.pack(fill="x", pady=5)
 
         # Možnost úprav obrázků
         self.edit_image_btn = tk.Button(
             self.controls_frame, text="Úpravy obrázku", command=self.edit_image,
-            bg=accent_color, fg="white", font=("Arial", 11, "bold"), relief="flat"
+            bg=accent_color, fg="white", font=font_bold, relief="flat", height=1
         )
         self.edit_image_btn.pack(fill="x", pady=5)
+
+        # Rámec pro graf pod tlačítky
+        self.chart_frame = tk.Frame(self.controls_frame, bg=bg_color)
+        self.chart_frame.pack(fill="both", expand=True, pady=10)
 
         # Inicializace grafu
         self.create_chart()
         self.update_chart([])  # Inicializace prázdného grafu
-
-        # Příprava pro oříznutí
-        self.start_x = None
-        self.start_y = None
-        self.rect = None
-        self.original_image = None  # Uloží originální obrázek pro úpravy
 
         # Přidání události pro výběr oblasti
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
         self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_button_release)
 
+        # Nastavení váhy sloupců
+        root.grid_rowconfigure(1, weight=1)
+        root.grid_columnconfigure(0, weight=3)  # 3/5 pro obrazovku
+        root.grid_columnconfigure(1, weight=2)  # 2/5 pro ovládací panel
+
     def redirect_console_output(self):
         # Přesměrování konzolového výstupu do Text widgetu
         sys.stdout = OutputRedirector(self.console_output)
         self.run_command("echo Připojení k systému úspěšné")  # Simulace příkazu pro zobrazení výstupu
-    
-    def run_command(self, command):
-        # Spustí příkaz a vypisuje jeho výstup do konzolového widgetu
-        def execute():
-            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            for line in iter(process.stdout.readline, b""):
-                try:
-                    # Přepnout na správný dekodér
-                    self.insert_to_console(line)
-                except UnicodeDecodeError:
-                    self.insert_to_console(line, encoding='latin-1', replace=True)
 
+    def run_command(self, command):
+        # Spustí příkaz v PowerShellu a vypisuje jeho výstup do konzolového widgetu
+        def execute():
+            process = subprocess.Popen(["powershell", "-Command", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            for line in iter(process.stdout.readline, ""):
+                self.insert_to_console(line)
+            for line in iter(process.stderr.readline, ""):
+                self.insert_to_console(line, error=True)
             process.stdout.close()
+            process.stderr.close()
             process.wait()
 
         thread = threading.Thread(target=execute)
         thread.start()
 
-    def insert_to_console(self, line, encoding='utf-8', replace=False):
+    def insert_to_console(self, line, error=False):
         # Vložení výstupu do konzolového widgetu
-        if replace:
-            decoded_line = line.decode(encoding, errors='replace')
-        else:
-            decoded_line = line.decode(encoding)
-
-        self.root.after(0, lambda: self.console_output.insert(tk.END, decoded_line))
+        self.root.after(0, lambda: self.console_output.insert(tk.END, line if not error else f"[ERROR] {line}", "error" if error else None))
         self.root.after(0, lambda: self.console_output.see(tk.END))
+
+    def execute_command(self, event):
+        # Získá příkaz od uživatele a spustí ho v PowerShellu
+        command = self.console_input.get()
+        if command.strip():
+            self.console_output.insert(tk.END, f"> {command}\n")
+            self.console_input.delete(0, tk.END)
+            self.run_command(command)
 
     def load_image(self):
         file_path = filedialog.askopenfilename()
@@ -167,76 +179,20 @@ class ObjectDetectionApp:
         self.original_image = img.copy()  # Uložení originálního obrázku pro úpravy
         canvas_width = self.canvas.winfo_width()
         canvas_height = self.canvas.winfo_height()
-        
+
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img_pil = Image.fromarray(img_rgb)
         img_resized = img_pil.resize((canvas_width, canvas_height), Image.LANCZOS)
         img_tk = ImageTk.PhotoImage(img_resized)
-        
+
         self.canvas.create_image(canvas_width // 2, canvas_height // 2, image=img_tk)
         self.canvas.image = img_tk  # Prevent garbage collection
 
     def create_chart(self):
-        self.figure, self.ax = plt.subplots(figsize=(5, 4))
-        self.chart_canvas = FigureCanvasTkAgg(self.figure, master=self.root)
-        self.chart_canvas.get_tk_widget().pack(side="right", fill="both", expand=True)
+        self.figure, self.ax = plt.subplots(figsize=(4, 2))  # Menší graf
+        self.chart_canvas = FigureCanvasTkAgg(self.figure, master=self.chart_frame)
+        self.chart_canvas.get_tk_widget().pack(fill="both", expand=True)
         self.chart_canvas.draw()
-
-    def edit_image(self):
-        if hasattr(self, 'original_image'):
-            # Možnost úpravy jas, kontrast, nebo filtr
-            brightness = simpledialog.askfloat("Jas", "Nastavte jas (0.0 - 2.0):", minvalue=0.0, maxvalue=2.0, initialvalue=1.0)
-            if brightness is not None:
-                img_pil = Image.fromarray(self.original_image)
-                enhancer = ImageEnhance.Brightness(img_pil)
-                self.original_image = np.array(enhancer.enhance(brightness))
-            
-            contrast = simpledialog.askfloat("Kontrast", "Nastavte kontrast (0.0 - 2.0):", minvalue=0.0, maxvalue=2.0, initialvalue=1.0)
-            if contrast is not None:
-                img_pil = Image.fromarray(self.original_image)
-                enhancer = ImageEnhance.Contrast(img_pil)
-                self.original_image = np.array(enhancer.enhance(contrast))
-
-            filter_type = simpledialog.askstring("Filtr", "Vyberte filtr (rozmazání, ostření, žádný):").strip().lower()
-            if filter_type == "rozmazání":
-                img_pil = Image.fromarray(self.original_image).filter(ImageFilter.GaussianBlur(5))
-                self.original_image = np.array(img_pil)
-            elif filter_type == "ostření":
-                img_pil = Image.fromarray(self.original_image).filter(ImageFilter.UnsharpMask(radius=2, percent=150))
-                self.original_image = np.array(img_pil)
-
-            self.display_image(self.original_image)  # Zobrazení upraveného obrázku
-        else:
-            messagebox.showwarning("Upozornění", "Nejdříve načtěte obrázek.")
-
-    def on_button_press(self, event):
-        # Uložení počátečního bodu pro oříznutí
-        self.start_x = event.x
-        self.start_y = event.y
-        self.rect = None
-
-    def on_mouse_drag(self, event):
-        # Aktualizace obdélníku pro oříznutí
-        if self.rect:
-            self.canvas.delete(self.rect)
-
-        self.rect = self.canvas.create_rectangle(self.start_x, self.start_y, event.x, event.y, outline="red")
-
-    def on_button_release(self, event):
-        # Oříznutí oblasti a zobrazení
-        if self.rect:
-            x0, y0, x1, y1 = (self.start_x, self.start_y, event.x, event.y)
-            cropped_image = self.original_image[y0:y1, x0:x1]
-            self.display_image(cropped_image)  # Zobrazení oříznutého obrázku
-
-    def detect_objects(self):
-        # Simulace detekce objektů a aktualizace grafu
-        simulated_detections = [
-            {'object': 'Objekt A', 'confidence': 0.9},
-            {'object': 'Objekt B', 'confidence': 0.7}
-        ]
-        self.update_chart(simulated_detections)
-        self.update_results(simulated_detections)
 
     def update_chart(self, detections):
         self.ax.clear()
@@ -245,29 +201,66 @@ class ObjectDetectionApp:
             values = [d['confidence'] * 100 for d in detections]
             self.ax.bar(labels, values, color='blue')
             self.ax.set_ylim(0, 100)
-            self.ax.set_xlabel('Objekty')
-            self.ax.set_ylabel('Důvěra (%)')
-            self.ax.set_title('Důvěra detekovaných objektů')
-        else:
-            self.ax.bar([], [])
-            self.ax.set_ylim(0, 100)
+            self.ax.set_title('Detekce objektů')
         self.chart_canvas.draw()
 
-    def update_results(self, detections):
-        # Zobrazení detekovaných objektů
-        self.results_text.config(state="normal")
-        self.results_text.delete(1.0, tk.END)  # Vyčistit předchozí výsledky
-        for detection in detections:
-            self.results_text.insert(tk.END, f"Objekt: {detection['object']}, Důvěra: {detection['confidence']:.2f}\n")
-        self.results_text.config(state="disabled")
+    def detect_objects(self):
+        # Příkaz pro přechod do adresáře a spuštění skriptu pro detekci objektů
+        command = "cd /home/pi/examples/lite/examples/object_detection/raspberry_pi && sudo python3 detect.py --model efficientdet_lite0.tflite"
+
+        # Spuštění příkazu v samostatném vlákně, aby GUI zůstalo responzivní
+        def execute_detection():
+            try:
+                process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                for line in iter(process.stdout.readline, ""):
+                    self.insert_to_console(line)  # Vložit výstup do konzoly
+                for line in iter(process.stderr.readline, ""):
+                    self.insert_to_console(line, error=True)  # Vložit chyby do konzoly
+                process.stdout.close()
+                process.stderr.close()
+                process.wait()
+            except Exception as e:
+                self.insert_to_console(f"[ERROR] {str(e)}", error=True)
+
+        # Spustí detekci v novém vlákně
+        thread = threading.Thread(target=execute_detection)
+        thread.start()
+
+    def edit_image(self):
+        # Implementujte funkce pro úpravy obrázků (např. oříznutí, filtr, kontrast)
+        pass
+
+    def on_button_press(self, event):
+        self.start_x = event.x
+        self.start_y = event.y
+
+    def on_mouse_drag(self, event):
+        if self.rect:
+            self.canvas.delete(self.rect)
+        self.rect = self.canvas.create_rectangle(
+            self.start_x, self.start_y, event.x, event.y, outline="red"
+        )
+
+    def on_button_release(self, event):
+        self.end_x = event.x
+        self.end_y = event.y
+        if self.rect:
+            self.canvas.delete(self.rect)
+        # Oříznutí obrázku podle vybrané oblasti
+        self.crop_image(self.start_x, self.start_y, self.end_x, self.end_y)
+
+    def crop_image(self, start_x, start_y, end_x, end_y):
+        if self.original_image is not None:
+            cropped = self.original_image[start_y:end_y, start_x:end_x]
+            self.display_image(cropped)
 
 class OutputRedirector:
-    def __init__(self, widget):
-        self.widget = widget
+    def __init__(self, text_widget):
+        self.text_widget = text_widget
 
-    def write(self, message):
-        self.widget.insert(tk.END, message)
-        self.widget.see(tk.END)
+    def write(self, text):
+        self.text_widget.insert(tk.END, text)
+        self.text_widget.see(tk.END)
 
     def flush(self):
         pass
