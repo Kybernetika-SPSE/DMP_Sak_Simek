@@ -40,7 +40,7 @@ GUI je navrženo s důrazem na jednoduchost a eleganci:
 ## Postup instalace
 1. Naklonujte si repozitář a přejděte do složky projektu:
    ```bash
-   git clone https://github.com/your-repo/ai-object-detection.git
+   git clone [https://github.com/Kybernetika-SPSE/DMP_Sak_Simek]
    cd ai-object-detection
 2. Nainstalujte potřebné balíčky:
    ```bash
