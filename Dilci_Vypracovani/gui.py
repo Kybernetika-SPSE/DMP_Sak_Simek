@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import sys
 import numpy as np
-import tensorflow as tf  # TensorFlow Lite
+import tensorflow as tf
 
 class OutputRedirector:
     def __init__(self, text_widget):
@@ -31,7 +31,12 @@ class ObjectDetectionApp:
 
         # Barevné schéma
         bg_color = "#f5f5f5"
+        frame_bg_color = "#ffffff"
         accent_color = "#3a7bd5"
+        text_color = "#333333"
+        font_primary = ("Helvetica", 8)  # Zmenšení písma pro ovládací prvky
+        font_secondary = ("Helvetica", 6)  # Menší písmo pro textové komponenty
+        font_bold = ("Helvetica", 8, "bold")
 
         self.root.configure(bg=bg_color)
 
@@ -42,7 +47,7 @@ class ObjectDetectionApp:
         self.title.grid(row=0, column=0, columnspan=2, pady=10)
 
         # Rámec pro zobrazení obrázku a konzoli
-        self.image_console_frame = tk.Frame(root, bg="#ffffff")
+        self.image_console_frame = tk.Frame(root, bg=frame_bg_color)
         self.image_console_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
         # Rámec pro zobrazení obrázku
@@ -53,7 +58,7 @@ class ObjectDetectionApp:
         self.canvas.pack(fill="both", expand=True)
 
         # Konzolový výstup a vstup
-        self.console_frame = tk.Frame(self.image_console_frame, bg="#ffffff")
+        self.console_frame = tk.Frame(self.image_console_frame, bg=frame_bg_color)
         self.console_frame.pack(fill="both", expand=True)
 
         self.console_output = tk.Text(self.console_frame, height=4, bg="#222222", fg="#ffffff", font=("Courier", 6), bd=1, relief="solid")
@@ -72,59 +77,65 @@ class ObjectDetectionApp:
         # Tlačítka pro načítání obrázku a videa
         self.load_image_btn = tk.Button(
             self.controls_frame, text="Načíst obrázek", command=self.load_image,
-            bg=accent_color, fg="white", font=("Helvetica", 8, "bold"), relief="flat", height=1
+            bg=accent_color, fg="white", font=font_bold, relief="flat", height=1
         )
         self.load_image_btn.pack(fill="x", pady=5)
 
         self.load_video_btn = tk.Button(
             self.controls_frame, text="Načíst video", command=self.load_video,
-            bg=accent_color, fg="white", font=("Helvetica", 8, "bold"), relief="flat", height=1
+            bg=accent_color, fg="white", font=font_bold, relief="flat", height=1
         )
         self.load_video_btn.pack(fill="x", pady=5)
 
         self.start_camera_btn = tk.Button(
             self.controls_frame, text="Spustit kameru", command=self.start_camera,
-            bg=accent_color, fg="white", font=("Helvetica", 8, "bold"), relief="flat", height=1
+            bg=accent_color, fg="white", font=font_bold, relief="flat", height=1
         )
         self.start_camera_btn.pack(fill="x", pady=5)
 
         # Tlačítko pro rozpoznání objektů
         self.detect_btn = tk.Button(
             self.controls_frame, text="Rozpoznat objekty", command=self.detect_objects,
-            bg=accent_color, fg="white", font=("Helvetica", 8, "bold"), relief="flat", height=1
+            bg=accent_color, fg="white", font=font_bold, relief="flat", height=1
         )
         self.detect_btn.pack(fill="x", pady=5)
 
         # Možnost úprav obrázků
         self.edit_image_btn = tk.Button(
             self.controls_frame, text="Úpravy obrázku", command=self.edit_image,
-            bg=accent_color, fg="white", font=("Helvetica", 8, "bold"), relief="flat", height=1
+            bg=accent_color, fg="white", font=font_bold, relief="flat", height=1
         )
         self.edit_image_btn.pack(fill="x", pady=5)
 
-        # Inicializace grafu
+        # Rámec pro graf pod tlačítky
         self.chart_frame = tk.Frame(self.controls_frame, bg=bg_color)
         self.chart_frame.pack(fill="both", expand=True, pady=10)
+
+        # Inicializace grafu
+        self.create_chart()
+        self.update_chart([])  # Inicializace prázdného grafu
 
         # Přidání události pro výběr oblasti
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
         self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_button_release)
 
-        # TensorFlow Lite model pro detekci objektů
-        self.interpreter = tf.lite.Interpreter(model_path="efficientdet_lite0.tflite")
-        self.interpreter.allocate_tensors()
-
         # Nastavení váhy sloupců
         root.grid_rowconfigure(1, weight=1)
         root.grid_columnconfigure(0, weight=3)  # 3/5 pro obrazovku
         root.grid_columnconfigure(1, weight=2)  # 2/5 pro ovládací panel
 
+        # Načtení modelu pro detekci objektů (TensorFlow Lite)
+        self.interpreter = tf.lite.Interpreter(model_path="efficientdet_lite0.tflite")
+        self.interpreter.allocate_tensors()
+
     def redirect_console_output(self):
+        # Přesměrování konzolového výstupu do Text widgetu
         sys.stdout = OutputRedirector(self.console_output)
-        self.run_command("echo Připojení k systému úspěšné")
+        self.run_command("echo Připojení k systému úspěšné")  # Simulace příkazu pro zobrazení výstupu
 
     def run_command(self, command):
+        # Spustí příkaz v PowerShellu a vypisuje jeho výstup do konzolového widgetu
         def execute():
             process = subprocess.Popen(["powershell", "-Command", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             for line in iter(process.stdout.readline, ""):
@@ -139,10 +150,12 @@ class ObjectDetectionApp:
         thread.start()
 
     def insert_to_console(self, line, error=False):
+        # Vložení výstupu do konzolového widgetu
         self.root.after(0, lambda: self.console_output.insert(tk.END, line if not error else f"[ERROR] {line}", "error" if error else None))
         self.root.after(0, lambda: self.console_output.see(tk.END))
 
     def execute_command(self, event):
+        # Získá příkaz od uživatele a spustí ho v PowerShellu
         command = self.console_input.get()
         if command.strip():
             self.console_output.insert(tk.END, f"> {command}\n")
@@ -192,8 +205,24 @@ class ObjectDetectionApp:
         self.canvas.create_image(canvas_width // 2, canvas_height // 2, image=img_tk)
         self.canvas.image = img_tk  # Prevent garbage collection
 
+    def create_chart(self):
+        self.figure, self.ax = plt.subplots(figsize=(4, 2))  # Menší graf
+        self.chart_canvas = FigureCanvasTkAgg(self.figure, master=self.chart_frame)
+        self.chart_canvas.get_tk_widget().pack(fill="both", expand=True)
+        self.chart_canvas.draw()
+
+    def update_chart(self, detections):
+        self.ax.clear()
+        if detections:
+            labels = [d['object'] for d in detections]
+            values = [d['confidence'] * 100 for d in detections]
+            self.ax.bar(labels, values, color='blue')
+            self.ax.set_ylim(0, 100)
+            self.ax.set_title('Detekce objektů')
+        self.chart_canvas.draw()
+
     def detect_objects(self):
-        # Převod obrázku na formát vhodný pro TensorFlow Lite
+        # Příprava pro detekci objektů
         img_resized = cv2.resize(self.original_image, (320, 320))  # Rozměry pro EfficientDet
         input_data = np.expand_dims(img_resized, axis=0).astype(np.float32)
         input_details = self.interpreter.get_input_details()
@@ -208,19 +237,32 @@ class ObjectDetectionApp:
         scores = self.interpreter.get_tensor(output_details[2]['index'])[0]  # Skóre
         num_detections = int(self.interpreter.get_tensor(output_details[3]['index'])[0])  # Počet detekcí
 
-        # Vykreslení výsledků na obraz
+        # Vypsání detekovaných objektů do konzole
+        print(f"Počet detekovaných objektů: {num_detections}")
         for i in range(num_detections):
             if scores[i] > 0.5:  # Pouze detekce s skóre > 0.5
+                class_id = int(classes[i])
+                score = scores[i]
                 box = boxes[i]
                 (ymin, xmin, ymax, xmax) = box
+
+                # Výpis informací o detekci
+                print(f"Objekt {i + 1}:")
+                print(f"  Třída: {class_id}, Skóre: {score:.2f}")
+                print(f"  Koordináty: ({xmin * self.original_image.shape[1]}, {ymin * self.original_image.shape[0]})"
+                      f" až ({xmax * self.original_image.shape[1]}, {ymax * self.original_image.shape[0]})")
+                print("-" * 30)
+
+                # Vykreslení výsledků na obraz
                 start_point = (int(xmin * self.original_image.shape[1]), int(ymin * self.original_image.shape[0]))
                 end_point = (int(xmax * self.original_image.shape[1]), int(ymax * self.original_image.shape[0]))
-
                 cv2.rectangle(self.original_image, start_point, end_point, (0, 255, 0), 2)  # Rámec
 
+        # Zobrazení obrázku s vykreslenými objekty
         self.display_image(self.original_image)
 
-# Spuštění aplikace
-root = tk.Tk()
-app = ObjectDetectionApp(root)
-root.mainloop()
+# Hlavní část programu pro spuštění aplikace
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ObjectDetectionApp(root)
+    root.mainloop()
