@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import sys
 import numpy as np
-import tensorflow as tf
 
 class OutputRedirector:
     def __init__(self, text_widget):
@@ -125,19 +124,15 @@ class ObjectDetectionApp:
         root.grid_columnconfigure(0, weight=3)  # 3/5 pro obrazovku
         root.grid_columnconfigure(1, weight=2)  # 2/5 pro ovládací panel
 
-        # Načtení modelu pro detekci objektů (TensorFlow Lite)
-        self.interpreter = tf.lite.Interpreter(model_path="efficientdet_lite0.tflite")
-        self.interpreter.allocate_tensors()
-
     def redirect_console_output(self):
         # Přesměrování konzolového výstupu do Text widgetu
         sys.stdout = OutputRedirector(self.console_output)
         self.run_command("echo Připojení k systému úspěšné")  # Simulace příkazu pro zobrazení výstupu
 
     def run_command(self, command):
-        # Spustí příkaz v PowerShellu a vypisuje jeho výstup do konzolového widgetu
+        # Spustí příkaz v terminálu a vypisuje jeho výstup do konzolového widgetu
         def execute():
-            process = subprocess.Popen(["powershell", "-Command", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             for line in iter(process.stdout.readline, ""):
                 self.insert_to_console(line)
             for line in iter(process.stderr.readline, ""):
@@ -155,7 +150,7 @@ class ObjectDetectionApp:
         self.root.after(0, lambda: self.console_output.see(tk.END))
 
     def execute_command(self, event):
-        # Získá příkaz od uživatele a spustí ho v PowerShellu
+        # Získá příkaz od uživatele a spustí ho v terminálu
         command = self.console_input.get()
         if command.strip():
             self.console_output.insert(tk.END, f"> {command}\n")
@@ -222,46 +217,55 @@ class ObjectDetectionApp:
         self.chart_canvas.draw()
 
     def detect_objects(self):
-        # Příprava pro detekci objektů
-        img_resized = cv2.resize(self.original_image, (320, 320))  # Rozměry pro EfficientDet
-        input_data = np.expand_dims(img_resized, axis=0).astype(np.float32)
-        input_details = self.interpreter.get_input_details()
-        output_details = self.interpreter.get_output_details()
+        # Příkaz pro přechod do adresáře a spuštění skriptu pro detekci objektů
+        command = "cd /home/pi/examples/lite/examples/object_detection/raspberry_pi && sudo python3 detect.py --model efficientdet_lite0.tflite"
 
-        self.interpreter.set_tensor(input_details[0]['index'], input_data)
-        self.interpreter.invoke()
+        # Spuštění příkazu v samostatném vlákně, aby GUI zůstalo responzivní
+        def execute_detection():
+            try:
+                process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                for line in iter(process.stdout.readline, ""):
+                    self.insert_to_console(line)  # Vložit výstup do konzoly
+                for line in iter(process.stderr.readline, ""):
+                    self.insert_to_console(line, error=True)  # Vložit chyby do konzoly
+                process.stdout.close()
+                process.stderr.close()
+                process.wait()
+            except Exception as e:
+                self.insert_to_console(f"[ERROR] {str(e)}", error=True)
 
-        # Výstupy modelu
-        boxes = self.interpreter.get_tensor(output_details[0]['index'])[0]  # Koordináty
-        classes = self.interpreter.get_tensor(output_details[1]['index'])[0]  # Třídy objektů
-        scores = self.interpreter.get_tensor(output_details[2]['index'])[0]  # Skóre
-        num_detections = int(self.interpreter.get_tensor(output_details[3]['index'])[0])  # Počet detekcí
+        # Spustí detekci v novém vlákně
+        thread = threading.Thread(target=execute_detection)
+        thread.start()
 
-        # Vypsání detekovaných objektů do konzole
-        print(f"Počet detekovaných objektů: {num_detections}")
-        for i in range(num_detections):
-            if scores[i] > 0.5:  # Pouze detekce s skóre > 0.5
-                class_id = int(classes[i])
-                score = scores[i]
-                box = boxes[i]
-                (ymin, xmin, ymax, xmax) = box
+    def edit_image(self):
+        # Implementujte funkce pro úpravy obrázků (např. oříznutí, filtr, kontrast)
+        pass
 
-                # Výpis informací o detekci
-                print(f"Objekt {i + 1}:")
-                print(f"  Třída: {class_id}, Skóre: {score:.2f}")
-                print(f"  Koordináty: ({xmin * self.original_image.shape[1]}, {ymin * self.original_image.shape[0]})"
-                      f" až ({xmax * self.original_image.shape[1]}, {ymax * self.original_image.shape[0]})")
-                print("-" * 30)
+    def on_button_press(self, event):
+        self.start_x = event.x
+        self.start_y = event.y
 
-                # Vykreslení výsledků na obraz
-                start_point = (int(xmin * self.original_image.shape[1]), int(ymin * self.original_image.shape[0]))
-                end_point = (int(xmax * self.original_image.shape[1]), int(ymax * self.original_image.shape[0]))
-                cv2.rectangle(self.original_image, start_point, end_point, (0, 255, 0), 2)  # Rámec
+    def on_mouse_drag(self, event):
+        if self.rect:
+            self.canvas.delete(self.rect)
+        self.rect = self.canvas.create_rectangle(
+            self.start_x, self.start_y, event.x, event.y, outline="red"
+        )
 
-        # Zobrazení obrázku s vykreslenými objekty
-        self.display_image(self.original_image)
+    def on_button_release(self, event):
+        self.end_x = event.x
+        self.end_y = event.y
+        if self.rect:
+            self.canvas.delete(self.rect)
+        # Oříznutí obrázku podle vybrané oblasti
+        self.crop_image(self.start_x, self.start_y, self.end_x, self.end_y)
 
-# Hlavní část programu pro spuštění aplikace
+    def crop_image(self, start_x, start_y, end_x, end_y):
+        if self.original_image is not None:
+            cropped = self.original_image[start_y:end_y, start_x:end_x]
+            self.display_image(cropped)
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = ObjectDetectionApp(root)
