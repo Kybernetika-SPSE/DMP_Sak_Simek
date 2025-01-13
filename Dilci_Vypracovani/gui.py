@@ -224,18 +224,23 @@ class ObjectDetectionApp:
 
     def detect_objects(self):
         # Funkce pro detekci objektů v nahraném obrázku nebo videu
-        image = self.original_image  # Používáme nahraný obrázek
+        if not hasattr(self, 'original_image') or self.original_image is None:
+            self.insert_to_console("[ERROR] Nejprve načtěte obrázek nebo video.")
+            return
+
+        image = self.original_image
 
         # Předzpracování obrázku
         input_details = self.interpreter.get_input_details()
         output_details = self.interpreter.get_output_details()
 
-        # Předzpracování obrázku pro model
-        image_resized = cv2.resize(image, (input_details[0]['shape'][2], input_details[0]['shape'][1]))
-        image_normalized = np.expand_dims(image_resized, axis=0).astype(np.float32)
+        input_shape = input_details[0]['shape']
+        image_resized = cv2.resize(image, (input_shape[2], input_shape[1]))
+        image_normalized = (image_resized / 255.0).astype(np.float32)
+        image_input = np.expand_dims(image_normalized, axis=0)
 
         # Detekce objektů
-        self.interpreter.set_tensor(input_details[0]['index'], image_normalized)
+        self.interpreter.set_tensor(input_details[0]['index'], image_input)
         self.interpreter.invoke()
 
         # Výstup detekce
@@ -247,12 +252,12 @@ class ObjectDetectionApp:
         for i in range(len(scores)):
             if scores[i] > 0.5:  # Filtrace podle skóre detekce
                 detections.append({
-                    'object': classes[i], 
+                    'object': int(classes[i]),  # Převod na int
                     'confidence': scores[i]
                 })
 
         self.update_chart(detections)  # Aktualizace grafu
-        self.insert_to_console(f"Detekce objektů: {detections}")  # Výpis výsledků do konzoly
+        self.insert_to_console(f"Detekce objektů: {detections}\n")  # Výpis výsledků do konzoly
 
     def edit_image(self):
         # Implementujte funkce pro úpravy obrázků (např. oříznutí, filtr, kontrast)
@@ -263,7 +268,7 @@ class ObjectDetectionApp:
         self.start_y = event.y
 
     def on_mouse_drag(self, event):
-        if self.rect:
+        if hasattr(self, 'rect') and self.rect:
             self.canvas.delete(self.rect)
         self.rect = self.canvas.create_rectangle(
             self.start_x, self.start_y, event.x, event.y, outline='red', width=2
