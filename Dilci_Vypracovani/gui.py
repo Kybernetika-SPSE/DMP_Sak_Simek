@@ -219,3 +219,8 @@ class ObjectDetectionApp:
                 cv2.rectangle(self.original_image, start_point, end_point, (0, 255, 0), 2)  # Rámec
 
         self.display_image(self.original_image)
+
+# Spuštění aplikace
+root = tk.Tk()
+app = ObjectDetectionApp(root)
+root.mainloop()
