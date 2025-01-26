@@ -166,18 +166,25 @@ class ObjectDetectionApp:
             self.show_frame_video()
             
     def start_camera(self):
-        if self.cap is None:
-            self.cap = cv2.VideoCapture(0)
         if not self.running:
             self.running = True
             self.update_camera_frame()
 
     def update_camera_frame(self):
-        if self.running and self.cap.isOpened():
-            ret, frame = self.cap.read()
-            if ret:
-                self.display_image(frame)
-            self.root.after(10, self.update_camera_frame)
+        if self.running:
+            try:
+                from picamera2 import Picamera2
+                picam2 = Picamera2()
+                picam2.configure(picam2.create_preview_configuration())
+                picam2.start()
+                frame = picam2.capture_array()
+
+                if frame is not None:
+                    self.display_image(frame)
+                self.root.after(10, self.update_camera_frame)
+            except ImportError:
+                self.insert_to_console("[ERROR] Modul Picamera2 není nainstalován.")
+                self.stop_camera()
 
     def show_frame_video(self):
         ret, frame = self.video_capture.read()
