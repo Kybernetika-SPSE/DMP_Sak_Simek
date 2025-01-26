@@ -123,6 +123,7 @@ class ObjectDetectionApp:
 
         self.cap = None
         self.running = False
+        self.ffplay_process = None
 
     def redirect_console_output(self):
         sys.stdout = OutputRedirector(self.console_output)
@@ -166,25 +167,18 @@ class ObjectDetectionApp:
             self.show_frame_video()
             
     def start_camera(self):
-        if not self.running:
-            self.running = True
-            self.update_camera_frame()
+        if self.ffplay_process is None:
+            self.ffplay_process = subprocess.Popen(["ffplay", "-f", "video4linux2", "/dev/video0"],
+                                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.insert_to_console("Kamera spuštěna pomocí ffplay\n")
+        else:
+            self.insert_to_console("[ERROR] Kamera již běží.\n")
 
-    def update_camera_frame(self):
-        if self.running:
-            try:
-                from picamera2 import Picamera2
-                picam2 = Picamera2()
-                picam2.configure(picam2.create_preview_configuration())
-                picam2.start()
-                frame = picam2.capture_array()
-
-                if frame is not None:
-                    self.display_image(frame)
-                self.root.after(10, self.update_camera_frame)
-            except ImportError:
-                self.insert_to_console("[ERROR] Modul Picamera2 není nainstalován.")
-                self.stop_camera()
+    def stop_camera(self):
+        if self.ffplay_process is not None:
+            self.ffplay_process.terminate()
+            self.ffplay_process = None
+            self.insert_to_console("Kamera zastavena.\n")
 
     def show_frame_video(self):
         ret, frame = self.video_capture.read()
@@ -278,12 +272,6 @@ class ObjectDetectionApp:
 
     def on_button_release(self, event):
         pass
-
-    def stop_camera(self):
-        self.running = False
-        if self.cap is not None:
-            self.cap.release()
-            self.cap = None
 
 if __name__ == "__main__":
     root = tk.Tk()
