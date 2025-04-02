@@ -7,9 +7,9 @@ Toto je aplikace pro rozpoznávání objektů v Pythonu, která využívá model
 - Načítání obrázků z místního souborového systému.
 - Zachytávání obrázků z webové kamery.
 - Detekce objektů v obrázcích pomocí modelu YOLO.
-- Zobrazení výsledků detekce s obdélníky a skóre důvěry.
+- Zobrazení výsledků detekce s bounding boxy a skóre důvěry.
 - Export výsledků detekce do souboru CSV.
-- Úprava obrázků pomocí Microsoft Paint.
+- Úprava obrázků pomocí externí aplikace.
 
 ## Požadavky
 
