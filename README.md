@@ -23,12 +23,16 @@ GUI je navrženo s důrazem na jednoduchost a eleganci:
 | Akcentní barva      | Modrá         | `#3a7bd5`  |
 | Barva textu         | Tmavě šedá    | `#333333`  |
 
-## Požadované moduly
-- tensorflow==2.12.0
-- tensorflow-hub==0.13.0
-- opencv-python==4.6.0.66
-- Pillow==9.4.0
-- numpy==1.24.3
+## Požadované knihovny
+- opencv-python==4.10.0
+- opencv-python-headless==4.10.0
+- Pillow==9.2.0
+- numpy==1.23.1
+- torch==1.12.1
+- torchvision==0.13.1
+- matplotlib==3.5.1
+- pandas==1.4.2
+- ultralytics==8.0.0
 
 
 ## Návod na použití
