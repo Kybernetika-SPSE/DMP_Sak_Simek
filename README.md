@@ -1,54 +1,36 @@
-# GUI pro Rozpoznávání objektů
+# Aplikace pro Rozpoznávání Objektů
 
-## Přehled
-GUI aplikace pro rozpoznávání objektů pomocí TensorFlow Lite. Aplikace umožňuje uživatelům nahrávat obrázky nebo sledovat živé video z kamery s výpisem detekovaných objektů v reálném čase. 
+Toto je aplikace pro rozpoznávání objektů v Pythonu, která využívá model YOLO (You Only Look Once) pro detekci objektů v reálném čase. Aplikace umožňuje uživatelům načítat obrázky, zachytávat obrázky z webové kamery a detekovat objekty v těchto obrázcích. Detekované objekty jsou zvýrazněny obdélníky a popisky.
 
-### Klíčové funkce
-- **Načtení obrázku a přístup ke kameře**: Možnost nahrát obrázek ze souboru nebo spustit živé video z kamery.
-- **Rozpoznávání objektů pomocí TensorFlow Lite**: Efektivní a lehká implementace modelu pro reálnou detekci objektů.
-- **Nastavitelná citlivost**: Citlivost detekce lze nastavit pomocí posuvníku.
-- **Elegantní a moderní uživatelské rozhraní**: Minimalistický a přehledný design pomocí Tkinteru.
+## Funkce
 
-## Design uživatelského rozhraní a barevné schéma
-GUI je navrženo s důrazem na jednoduchost a eleganci:
-- **Barevné schéma**: Jemné modré a šedé tóny s akcentovými barvami pro profesionální vzhled.
-- **Zaoblené hrany**: Tlačítka a rámečky se zaoblenými hranami pro moderní, hladký vzhled.
-- **Přehledné rozvržení**: Tlačítka jsou jasně označená a umístěná pro snadnou orientaci.
+- Načítání obrázků z místního souborového systému.
+- Zachytávání obrázků z webové kamery.
+- Detekce objektů v obrázcích pomocí modelu YOLO.
+- Zobrazení výsledků detekce s obdélníky a skóre důvěry.
+- Export výsledků detekce do souboru CSV.
+- Úprava obrázků pomocí Microsoft Paint.
 
-### Barevná paleta
-| Prvek               | Barva         | Hex kód    |
-|---------------------|---------------|------------|
-| Pozadí aplikace     | Světle šedá   | `#fafafa`  |
-| Pozadí rámečků      | Modrošedá     | `#e3e8f0`  |
-| Akcentní barva      | Modrá         | `#3a7bd5`  |
-| Barva textu         | Tmavě šedá    | `#333333`  |
+## Požadavky
 
-## Požadované knihovny
-- opencv-python==4.10.0
-- opencv-python-headless==4.10.0
-- Pillow==9.2.0
-- numpy==1.23.1
-- torch==1.12.1
-- torchvision==0.13.1
-- matplotlib==3.5.1
-- pandas==1.4.2
-- ultralytics==8.0.0
+Pro spuštění této aplikace potřebujete mít nainstalovaný Python 3.7 nebo novější na vašem systému. Následující Python balíčky jsou vyžadovány:
 
+- `opencv-python`
+- `opencv-python-headless`
+- `Pillow`
+- `numpy`
+- `torch`
+- `torchvision`
+- `matplotlib`
+- `pandas`
+- `ultralytics`
 
-## Návod na použití
-1. **Načtení obrázku**: Klikněte na „Načíst obrázek“ a nahrajte obrázek pro detekci.
-2. **Spuštění kamery**: Klikněte na „Spustit kameru“ pro aktivaci webkamery a zahájení živého záznamu.
-3. **Rozpoznání objektů**: Stiskněte „Rozpoznat objekty“ pro spuštění rozpoznávání a zobrazení výsledků.
-4. **Nastavení citlivosti**: Pomocí posuvníku citlivosti lze upravit míru detekce.
+Všechny potřebné balíčky můžete nainstalovat pomocí poskytnutého souboru `requirements.txt`.
 
-## Postup instalace
-1. Naklonujte si repozitář a přejděte do složky projektu:
+## Instalace
+
+1. Klonujte repozitář do svého místního počítače:
+
    ```bash
-   git clone https://github.com/Kybernetika-SPSE/DMP_Sak_Simek
-   cd ai-object-detection
-2. Nainstalujte potřebné balíčky:
-   ```bash
-   pip install -r requirements.txt
-3. Spusťte aplikaci:
-   ```bash
-   python app.py
+   git clone https://github.com/yourusername/object-detection-app.git
+   cd object-detection-app
