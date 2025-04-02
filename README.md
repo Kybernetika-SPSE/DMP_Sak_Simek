@@ -32,5 +32,9 @@ Všechny potřebné balíčky můžete nainstalovat pomocí poskytnutého soubor
 1. Klonujte repozitář do svého místního počítače:
 
    ```bash
-   git clone https://github.com/yourusername/object-detection-app.git
-   cd object-detection-app
+   git clone https://github.com/Kybernetika-SPSE/DMP_Sak_Simek)
+   cd DMP_Sak_Simek
+   python -m venv venv
+   source venv/bin/activate  # Na Windows použijte `venv\Scripts\activate`
+   pip install -r requirements.txt
+   python gui.py
