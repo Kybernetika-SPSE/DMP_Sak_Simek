@@ -1,6 +1,6 @@
 # Aplikace pro Rozpoznávání Objektů
 
-Toto je aplikace pro rozpoznávání objektů v Pythonu, která využívá model YOLO (You Only Look Once) pro detekci objektů v reálném čase. Aplikace umožňuje uživatelům načítat obrázky, zachytávat obrázky z webové kamery a detekovat objekty v těchto obrázcích. Detekované objekty jsou zvýrazněny obdélníky a popisky.
+Toto je aplikace pro rozpoznávání objektů v Pythonu, která využívá model YOLO (You Only Look Once) pro detekci objektů v reálném čase. Aplikace umožňuje uživatelům načítat obrázky, zachytávat obrázky z webové kamery a detekovat objekty v těchto obrázcích. Detekované objekty jsou v bounding boxech i s jejich klasifikací.
 
 ## Funkce
 
